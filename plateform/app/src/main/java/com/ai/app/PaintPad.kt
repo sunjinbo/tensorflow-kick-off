@@ -5,6 +5,12 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.graphics.Bitmap
+
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+
 
 class PaintPad : View {
     private lateinit var mPaint: Paint
@@ -26,7 +32,7 @@ class PaintPad : View {
     override fun onDraw(canvas: Canvas?) {
         init(canvas!!.width, canvas!!.height)
         if (mIsLoaded) {
-            canvas?.drawBitmap(mBitmap, 0F, 0F, mPaint)
+            canvas?.drawBitmap(mBitmap, 0F, 0F, null)
             canvas?.drawPath(mPath, mPaint)
         }
     }
@@ -58,14 +64,46 @@ class PaintPad : View {
         return true
     }
 
+    fun save() {
+        var bitmap = resizeBitmap(mBitmap, 28F, 28F)
+        //指定我们想要存储文件的地址
+        val targetPath = context.externalCacheDir.toString()
+        //如果指定文件夹创建成功，那么我们则需要进行图片存储操作
+        val saveFile = File(targetPath, "test.png")
+        try {
+            val saveImgOut = FileOutputStream(saveFile)
+            // compress - 压缩的意思
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, saveImgOut)
+            //存储完成后需要清除相关的进程
+            saveImgOut.flush()
+            saveImgOut.close()
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+        }
+    }
+
+    private fun resizeBitmap(bitmap: Bitmap, width: Float, height: Float): Bitmap {
+        var originWidth = bitmap.width
+        var originHeight = bitmap.height
+
+        var scaleWidth = width / originWidth
+        var scaleHeight = height / originHeight
+
+        var matrix = Matrix()
+        matrix.postScale(scaleWidth, scaleHeight)
+
+        return Bitmap.createBitmap(bitmap, 0, 0, originWidth, originHeight, matrix, true)
+    }
+
     private fun init(width: Int, height: Int) {
         if (!mIsLoaded) {
             mIsLoaded = true
 
             mPaint = Paint()
             mPaint.isAntiAlias = true
-            mPaint.strokeWidth = 5.0F
+            mPaint.strokeWidth = 15.0F
             mPaint.style = Paint.Style.STROKE
+            mPaint.strokeCap = Paint.Cap.ROUND
             mPaint.color = Color.BLACK
 
             mPath = Path()
