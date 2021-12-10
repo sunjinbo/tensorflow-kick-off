@@ -31,6 +31,7 @@ class PaintPad : View {
 
     override fun onDraw(canvas: Canvas?) {
         init(canvas!!.width, canvas!!.height)
+        canvas?.drawColor(Color.WHITE)
         if (mIsLoaded) {
             canvas?.drawBitmap(mBitmap, 0F, 0F, null)
             canvas?.drawPath(mPath, mPaint)
@@ -101,7 +102,7 @@ class PaintPad : View {
 
             mPaint = Paint()
             mPaint.isAntiAlias = true
-            mPaint.strokeWidth = 15.0F
+            mPaint.strokeWidth = 60.0F
             mPaint.style = Paint.Style.STROKE
             mPaint.strokeCap = Paint.Cap.ROUND
             mPaint.color = Color.BLACK
